@@ -27,7 +27,7 @@
   --svg_color: #fff;
 
   /* You can change the background, text color and active color of the menu by changing the color codes. */
-  --menu_background_color: #1d1e24;
+  --menu_background_color: rgba(200, 200, 210, 0.9);
   --menu_text_color: #fff;
   --menu_active_text_color: #d7e04f;
 
@@ -59,16 +59,12 @@ body {
 
 /* Logo, Title and Description Codes */
 
-.header_img {
-  padding-top: 1em;
-}
-
 .header_img img {
   height: var(--image_height);
   width: var(--image_width);
   border: var(--image_border_px) solid var(--image_border_color);
   border-radius: 50%;
-  margin-bottom: 0.5em;
+/*   margin-bottom: 0.5em; */
 }
 
 .header_text h1 {
@@ -128,6 +124,7 @@ button {
     position: relative;
     min-height: 100vh;
     pointer-events: none;
+    text-align: center;
 }
 
 /* Background media */
@@ -146,7 +143,10 @@ canvas {
 /* Footer Codes */
 
 #content-wrap {
-    padding-bottom: 1.5rem;
+    padding: 1rem;
+    display: inline-block;
+    background-color: var(--menu_background_color);
+    box-shadow: 0 0 10px 5px var(--menu_background_color);
 }
 
 #content-wrap > div {
