@@ -21,61 +21,67 @@ https://github.com/ardacarofficial/links-website is open source project.
     <link rel="stylesheet" href="css/style.css">
   </head>
   <body>
-    <header>
-    <!-- Logo, Title and Description Codes Start -->
-      <div class="header_img flex_column_center">
-        <img src="img/logo.png" alt="Logo" />
-      </div>
-      <div class="header_text flex_column_center">
-        <h1 class="header_h_item">Kevin Han</h1>
-        <!-- <h2 class="header_h_item">List of my links (but not a linked list)</h2> -->
-      </div>
-    <!-- Logo, Title and Description Codes End -->  
-
-    <!-- Social Media Icons Codes Start -->
-    <!-- Social Media Icons Codes End -->
-
-    <!-- Menu Codes Start -->
-    <!-- Menu Codes End -->
-    </header>
-    <main>
-      <!-- Menu Container 1 Codes Start -->
-      <section id="main_section_container_1" class="flex_column_center">
-        <!-- Menu Item -->
-        <a class="main_a_item" href="https://www.linkedin.com/in/kevin-han-6aab1452/" target="_blank" rel="nofollow">
-            <button class="main_button_item"><img src="img/LI-In-Bug.png"> LinkedIn</button>
-        </a>
-        <!-- Menu Item -->
-        <a class="main_a_item" href="https://scholar.google.com/citations?user=DF5pwN8AAAAJ&hl=en" target="_blank" rel="nofollow">
-            <button class="main_button_item"><img src="img/1024px-Google_Scholar_logo.svg.png"> Google Scholar</button>
-        </a>
-        <!-- Menu Item -->
-        <a class="main_a_item" href="http://ramp-book.com" target="_blank" rel="nofollow">
-            <button class="main_button_item"><img src="img/ramp.png"> Relativity: A Modern Primer
-                <p>A short textbook on relativity and more</p></button>
-        </a>
-        <!-- Menu Item -->
-        <a class="main_a_item" href="http://diffxweyl.wordpress.com" target="_blank" rel="nofollow">
-            <button class="main_button_item"><img src="img/wp.png"> diff ⨉ weyl (physics blog)</button>
-        </a>
-        <!-- Menu Item -->
-        <a class="main_a_item" href="https://github.com/fferen" target="_blank" rel="nofollow">
-            <button class="main_button_item"><img src="img/github.png"> Github</button>
-        </a>
-        <!-- Menu Item -->
-        <a class="main_a_item" href="mailto:kyh@eecs.berkeley.edu" target="_blank" rel="nofollow">
-            <button class="main_button_item"><img src="img/mail.png"> E-mail</button>
-        </a>
-      </section>
-      <!-- Menu Container 1 Codes End -->
-    </main>
-    <footer>
-      <!-- Footer Codes Start -->
-      <div class="footer_div_item flex_row_center">
-        © 2023 Kevin Han
-      </div>
-    </footer>
-      <!-- Footer Codes End -->
+    <canvas id="gameCanvas"></canvas>
+    <div id="foreground">
+        <div id="content-wrap">
+            <!-- Logo, Title and Description Codes Start -->
+            <div class="header_img">
+                <img src="img/logo.png" alt="Logo" />
+            </div>
+            <div class="header_text">
+                <h1 class="header_h_item">Kevin Han</h1>
+                <!-- <h2 class="header_h_item">List of my links (but not a linked list)</h2> -->
+            </div>
+            <!-- Menu Item -->
+            <div>
+                <a class="main_a_item" href="https://www.linkedin.com/in/kevin-han-6aab1452/" target="_blank" rel="nofollow">
+                    <button class="main_button_item"><img src="img/LI-In-Bug.png"> LinkedIn</button>
+                </a>
+            </div>
+            <!-- Menu Item -->
+            <div>
+                <a class="main_a_item" href="https://scholar.google.com/citations?user=DF5pwN8AAAAJ&hl=en" target="_blank" rel="nofollow">
+                    <button class="main_button_item"><img src="img/1024px-Google_Scholar_logo.svg.png"> Google Scholar</button>
+                </a>
+            </div>
+            <!-- Menu Item -->
+            <div>
+                <a class="main_a_item" href="http://ramp-book.com" target="_blank" rel="nofollow">
+                    <button class="main_button_item"><img src="img/ramp.png"> Relativity: A Modern Primer
+                        <p>A short textbook on relativity and more</p></button>
+                </a>
+            </div>
+            <!-- Menu Item -->
+            <div>
+                <a class="main_a_item" href="http://diffxweyl.wordpress.com" target="_blank" rel="nofollow">
+                    <button class="main_button_item"><img src="img/wp.png"> diff ⨉ weyl (physics blog)</button>
+                </a>
+            </div>
+            <!-- Menu Item -->
+            <div>
+                <a class="main_a_item" href="https://github.com/fferen" target="_blank" rel="nofollow">
+                    <button class="main_button_item"><img src="img/github.png"> Github</button>
+                </a>
+            </div>
+            <!-- Menu Item -->
+            <div>
+                <a class="main_a_item" href="mailto:kyh@eecs.berkeley.edu" target="_blank" rel="nofollow">
+                    <button class="main_button_item"><img src="img/mail.png"> E-mail</button>
+                </a>
+            </div>
+            <div class="control-buttons">
+                <button id="playPauseButton">Play / Pause</button>
+                <button id="clearButton">Clear</button>
+                <button id="resetButton">Reset</button>
+            </div>
+        </div>
+        <footer>
+            <!-- Footer Codes Start -->
+            © 2023 Kevin Han
+            <!-- Footer Codes End -->
+        </footer>
+    </div>
     <script src="js/main.js"></script>
+    <script src="js/life.js"></script>
   </body>
 </html>

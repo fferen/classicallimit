@@ -33,6 +33,13 @@ resetButton.addEventListener('click', () => {
 });
 document.addEventListener('keydown', handleKeyPress);
 
+// prevent focus on buttons (then space will activate)
+document.querySelectorAll("button").forEach( function(item) {
+    item.addEventListener('focus', function() {
+        this.blur();
+    })
+})
+
 toggleAnimation();
 
 function initPattern() {
@@ -103,11 +110,11 @@ function createGrid(rows, cols) {
 // Function to draw the grid
 function drawGrid() {
 //            ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "rgb(220,220,220)";
+    ctx.fillStyle = "rgb(240,240,240)";
     ctx.fillRect(0,0,canvas.width, canvas.height);
 
     // Draw grid lines
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
     ctx.lineWidth = 1;
 
     for (let i = 0; i <= rows; i++) {
@@ -196,10 +203,7 @@ function countNeighbors(row, col) {
 function toggleAnimation() {
     running = !running;
     if (running) {
-        playPauseButton.textContent = 'Pause';
         requestAnimationFrame(animate);
-    } else {
-        playPauseButton.textContent = 'Play';
     }
 }
 
