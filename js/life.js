@@ -40,11 +40,6 @@ canvas.addEventListener('mouseup', () => (isMouseDown = false));
 canvas.addEventListener('mousemove', handleMouseMove);
 playPauseButton.addEventListener('click', () => {
     toggleAnimation();
-    if (running) {
-        playPauseButton.innerHTML = 'Pause';
-    } else {
-        playPauseButton.innerHTML = 'Play';
-    }
 });
 playPauseButton.addEventListener('click', stopPulse);
 clearButton.addEventListener('click', clearGrid);
@@ -256,6 +251,9 @@ function toggleAnimation() {
     running = !running;
     if (running) {
         requestAnimationFrame(animate);
+        playPauseButton.innerHTML = 'Pause';
+    } else {
+        playPauseButton.innerHTML = 'Play';
     }
 }
 
