@@ -1,22 +1,36 @@
+const GRID_W = 65536;
+const GRID_OFF = 32768;
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const cellSize = 15; // Size of each cell in pixels
-//const prob = 0.1;
-let rows, cols; // Number of rows and columns
-let grid; // The grid of cells
+const prob = 0.3;
+let grid = new Set(); // The grid of cells
 let running = false; // Track animation state
 let isMouseDown = false; // Track mouse button state
 let cellsToggledDuringDrag = new Set(); // Track cells toggled during a drag
 
+let h, w;   // size in # cells
+updateSize();
+
+window.addEventListener('resize', updateSize);
+
 const playPauseButton = document.getElementById('playPauseButton');
 const clearButton = document.getElementById('clearButton');
 const resetButton = document.getElementById('resetButton');
+const randButton = document.getElementById('randButton');
+
+if (w < 40 || h < 50) {
+    document.getElementById('control-buttons').style.display = "none";
+    document.getElementById('drawPrompt').innerHTML = "View on desktop for a surprise...";
+    ctx.fillStyle = "rgb(240,240,240)";
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+    uhetonas // syntax error to stop execution
+}
 
 // Initialize the grid based on the current window size
-updateGridSize();
 initPattern();
 
-window.addEventListener('resize', updateGridSize);
 canvas.addEventListener('mousedown', (event) => {
     isMouseDown = true;
     cellsToggledDuringDrag.clear(); // Clear the set when starting a new drag
@@ -24,11 +38,24 @@ canvas.addEventListener('mousedown', (event) => {
 });
 canvas.addEventListener('mouseup', () => (isMouseDown = false));
 canvas.addEventListener('mousemove', handleMouseMove);
-playPauseButton.addEventListener('click', toggleAnimation);
+playPauseButton.addEventListener('click', () => {
+    toggleAnimation();
+    if (running) {
+        playPauseButton.innerHTML = 'Pause';
+    } else {
+        playPauseButton.innerHTML = 'Play';
+    }
+});
+playPauseButton.addEventListener('click', stopPulse);
 clearButton.addEventListener('click', clearGrid);
 resetButton.addEventListener('click', () => {
     clearGrid();
     initPattern();
+    drawGrid();
+});
+randButton.addEventListener('click', () => {
+    clearGrid();
+    initPatternRand(prob);
     drawGrid();
 });
 document.addEventListener('keydown', handleKeyPress);
@@ -40,71 +67,94 @@ document.querySelectorAll("button").forEach( function(item) {
     })
 })
 
-toggleAnimation();
+var isPlayClicked = false;
+function stopPulse() {
+    if (!isPlayClicked) {
+        playPauseButton.style.animationName = 'none';
+        playPauseButton.style.backgroundColor = '#fff';
+        isPlayClicked = true;
+    }
+}
+
+//toggleAnimation();
+
+function updateSize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    h = Math.floor(canvas.height / cellSize);
+    w = Math.floor(canvas.width / cellSize);
+    drawGrid();
+}
 
 function initPattern() {
-    if (!initPatternGliderGun()) {
+    if (!initPatternP177()) {
         initPatternRand(prob);
     }
 }
 
-function initPatternGliderGun() {
-    const s = "........................O........... ......................O.O...........  ............OO......OO............OO ...........O...O....OO............OO OO........O.....O...OO.............. OO........O...O.OO....O.O...........  ..........O.....O.......O........... ...........O...O....................  ............OO......................";
+function getCXY(v) {
+    return [Math.floor(v/GRID_W)-GRID_OFF, (v % GRID_W)-GRID_OFF];
+}
+function getCV(x, y) {
+    return (x+GRID_OFF)*GRID_W+y+GRID_OFF;
+}
+function setC(x, y) {
+    grid.add(getCV(x, y));
+}
+function setCG(g, x, y) {
+    g.add(getCV(x, y));
+}
+function isC(x, y) {
+    return grid.has(getCV(x, y));
+}
+
+function initPatternStr(s, xOff, yOff) {
     const pRows = s.split(/\s+/);
-    const pW = pRows[0].length;
     const pH = pRows.length;
-    if (rows < pH || cols < pW) {
+    let pW = 0;
+    for (const a of pRows) {
+        if (a.length > pW) {
+            pW = a.length;
+        }
+    }
+    if (h < pH || w < pW) {
         return false;
     }
-    const i0 = Math.floor((rows-pH)/2);
-    const j0 = Math.floor((cols-pW)/2);
+    const i0 = Math.floor((h-pH)/2);
+    const j0 = Math.floor((w-pW)/2);
     for (let i = i0; i < i0+pH; i++) {
-        for (let j = j0; j < j0+pW; j++) {
-            grid[i][j] = (pRows[i-i0][j-j0] == 'O');
+        for (let j = j0; j-j0 < pRows[i-i0].length; j++) {
+            if (pRows[i-i0][j-j0] == 'O') {
+                setC(j+xOff, i+yOff);
+            }
         }
     }
     return true;
 }
 
+function initPatternP177() {
+    const s = "................O............O................  .........OO........................OO.........  ........OOO...OO..............OO...OOO........  ..............OO.OO........OO.OO..............  ................O............O................  ..............................................  ..............................................  ..............................................  ..O........................................O..  .OO........................................OO.  .OO........................................OO.  ..............................................  ..............................................  ..............................................  ..OO......................................OO..  ..OO......................................OO..  O...O....................................O...O ...O......................................O...  ...O......................................O...  ..............................................  ..............................................  ..............................................  ..............................................  ..............................................  ..............................................  ..............................................  ..............................................  ...O......................................O...  ...O......................................O...  O...O....................................O...O ..OO......................................OO..  ..OO......................................OO..  ..............................................  ..............................................  ..............................................  .OO........................................OO.  .OO........................................OO.  ..O........................................O..  ..............................................  ..............................................  ..............................................  ................O............O................  ..............OO.OO........OO.OO..............  ........OOO...OO..............OO...OOO........  .........OO........................OO.........  ................O............O................";
+    return initPatternStr(s, 0, 0);
+}
+
+function initPatternAcorn() {
+    const s = ".O ...O OO..OOO";
+    return initPatternStr(s, 30, 0);
+}
+
+function initPatternGliderGun() {
+    const s = "........................O........... ......................O.O...........  ............OO......OO............OO ...........O...O....OO............OO OO........O.....O...OO.............. OO........O...O.OO....O.O...........  ..........O.....O.......O........... ...........O...O....................  ............OO......................";
+    return initPatternStr(s, 0, 0);
+}
+
 function initPatternRand(prob) {
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-            grid[i][j] = (Math.random() < prob);
+    for (let i = 0; i < h; i++) {
+        for (let j = 0; j < w; j++) {
+            if (Math.random() < prob) {
+                setC(j, i);
+            }
         }
     }
-}
-
-// Function to update the grid size based on the window size
-function updateGridSize() {
-    const prevRows = rows;
-    const prevCols = cols;
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    rows = Math.floor(canvas.height / cellSize);
-    cols = Math.floor(canvas.width / cellSize);
-
-    // Create a new grid with the updated size
-    const newGrid = createGrid(rows, cols);
-
-    // Copy the existing grid to the new grid, maintaining the top-left cells
-    for (let i = 0; i < Math.min(prevRows, rows); i++) {
-        for (let j = 0; j < Math.min(prevCols, cols); j++) {
-            newGrid[i][j] = grid[i][j];
-        }
-    }
-
-    grid = newGrid;
-    drawGrid();
-}
-
-// Function to create an empty grid
-function createGrid(rows, cols) {
-    const grid = new Array(rows);
-    for (let i = 0; i < rows; i++) {
-        grid[i] = new Array(cols).fill(false);
-    }
-    return grid;
 }
 
 // Function to draw the grid
@@ -117,24 +167,24 @@ function drawGrid() {
     ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
     ctx.lineWidth = 1;
 
-    for (let i = 0; i <= rows; i++) {
+    for (let i = 0; i <= h; i++) {
         ctx.beginPath();
         ctx.moveTo(0, i * cellSize);
         ctx.lineTo(canvas.width, i * cellSize);
         ctx.stroke();
     }
 
-    for (let j = 0; j <= cols; j++) {
+    for (let j = 0; j <= w; j++) {
         ctx.beginPath();
         ctx.moveTo(j * cellSize, 0);
         ctx.lineTo(j * cellSize, canvas.height);
         ctx.stroke();
     }
 
-    ctx.fillStyle = 'black';
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-            if (grid[i][j]) {
+    ctx.fillStyle = "rgb(100,120,200)";
+    for (let i = 0; i < h; i++) {
+        for (let j = 0; j < w; j++) {
+            if (isC(j, i)) {
                 ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
             }
         }
@@ -143,14 +193,17 @@ function drawGrid() {
 
 // Function to toggle a cell's state
 function toggleCell(x, y) {
-    if (!running) {
-        const cellX = Math.floor(x / cellSize);
-        const cellY = Math.floor(y / cellSize);
-        if (!cellsToggledDuringDrag.has(`${cellX}-${cellY}`)) {
-            grid[cellY][cellX] = !grid[cellY][cellX];
-            cellsToggledDuringDrag.add(`${cellX}-${cellY}`);
-            drawGrid();
+    const cellX = Math.floor(x / cellSize);
+    const cellY = Math.floor(y / cellSize);
+    const v = getCV(cellX, cellY);
+    if (!cellsToggledDuringDrag.has(v)) {
+        if (grid.has(v)) {
+            grid.delete(v);
+        } else {
+            grid.add(v);
         }
+        cellsToggledDuringDrag.add(v);
+        drawGrid();
     }
 }
 
@@ -163,40 +216,39 @@ function handleMouseMove(event) {
 
 // Function to update the grid based on the rules of the Game of Life
 function updateGrid() {
-    const newGrid = createGrid(rows, cols);
+    let nbrMap = new Map();
+    let newGrid = new Set();
 
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-            const neighbors = countNeighbors(i, j);
-            if (grid[i][j]) {
-                newGrid[i][j] = neighbors === 2 || neighbors === 3;
-            } else {
-                newGrid[i][j] = neighbors === 3;
-            }
+    function incNbr(x, y) {
+        const v = getCV(x, y);
+        if (nbrMap.has(v)) {
+            nbrMap.set(v, nbrMap.get(v)+1);
+        } else {
+            nbrMap.set(v, 1);
         }
     }
 
-    grid.splice(0, grid.length, ...newGrid);
-}
+    for (const v of grid) {
+        const [x, y] = getCXY(v);
+        incNbr(x-1, y-1);
+        incNbr(x-1, y);
+        incNbr(x-1, y+1);
+        incNbr(x, y-1);
+        incNbr(x, y+1);
+        incNbr(x+1, y-1);
+        incNbr(x+1, y);
+        incNbr(x+1, y+1);
+    }
 
-// Function to count the live neighbors of a cell
-function countNeighbors(row, col) {
-    let count = 0;
-
-    for (let i = -1; i <= 1; i++) {
-        for (let j = -1; j <= 1; j++) {
-            if (i === 0 && j === 0) continue;
-
-            const newRow = row + i;
-            const newCol = col + j;
-
-            if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
-                count += grid[newRow][newCol] ? 1 : 0;
-            }
+    for (const [v, nbrs] of nbrMap) {
+        const isOn = grid.has(v);
+        if ((isOn && (nbrs === 2 || nbrs === 3)) ||
+            (!isOn && (nbrs === 3))) {
+            newGrid.add(v);
         }
     }
 
-    return count;
+    grid = newGrid;
 }
 
 // Function to start or stop the animation
@@ -209,13 +261,11 @@ function toggleAnimation() {
 
 // Function to handle clear button click
 function clearGrid() {
-    // Turn off all cells
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-            grid[i][j] = false;
-        }
-    }
+    grid.clear();
     drawGrid();
+    if (running) {
+        toggleAnimation();
+    }
 }
 
 // Animation loop
@@ -223,7 +273,9 @@ function animate() {
     if (running) {
         updateGrid();
         drawGrid();
-        requestAnimationFrame(animate);
+        setTimeout(() => {
+            requestAnimationFrame(animate);
+        }, 33);
     }
 }
 
@@ -231,6 +283,7 @@ function animate() {
 function handleKeyPress(event) {
     if (event.key === ' ') {
         toggleAnimation();
+        stopPulse();
     }
 }
 
