@@ -20,7 +20,7 @@ const clearButton = document.getElementById('clearButton');
 const resetButton = document.getElementById('resetButton');
 const randButton = document.getElementById('randButton');
 
-if (w < 40 || h < 50) {
+if (w < 40 || h < 40) {
     document.getElementById('control-buttons').style.display = "none";
     document.getElementById('drawPrompt').innerHTML = "View on desktop for a surprise...";
     ctx.fillStyle = "rgb(240,240,240)";
