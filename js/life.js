@@ -1,7 +1,50 @@
 const GRID_W = 65536;
 const GRID_OFF = 32768;
-const DECAY_GENS = 5;
 
+const COLOR_SCHEMES = [
+    {
+        'c1': [220, 50, 50],
+        'g1': 5,
+        'c2': [230, 194, 0],
+        'g2': 20,
+        'c3': [50, 50, 220],
+        'g3': 40,
+        'c4': [0, 0, 0],
+        'name': 'Fire',
+    },
+    {
+        'c1': [50, 50, 220],
+        'g1': 5,
+        'c2': [230, 194, 0],
+        'g2': 20,
+        'c3': [230, 20, 20],
+        'g3': 40,
+        'c4': [0, 0, 0],
+        'name': 'BlueFire',
+    },
+    {
+        'c1': [20, 163, 3],
+        'g1': 5,
+        'c2': [129, 140, 60],
+        'g2': 20,
+        'c3': [114, 96, 27],
+        'g3': 40,
+        'c4': [89, 58, 14],
+        'name': 'Forest',
+    },
+    {
+        'c1': [0, 132, 209],
+        'g1': 5,
+        'c2': [99, 177, 255],
+        'g2': 20,
+        'c3': [229, 190, 42],
+        'g3': 40,
+        'c4': [209, 169, 25],
+        'name': 'Beach',
+    },
+];
+
+const colorScheme = document.getElementById('color_scheme');
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const cellSize = 15; // Size of each cell in pixels
@@ -10,6 +53,7 @@ let grid = new Map(); // map on cell => # gens has been on
 let running = false; // Track animation state
 let isMouseDown = false; // Track mouse button state
 let cellsToggledDuringDrag = new Set(); // Track cells toggled during a drag
+let cI = 0; // color scheme index
 
 let h, w;   // size in # cells
 updateSize();
@@ -149,6 +193,16 @@ function initPatternRand(prob) {
 
 // Function to draw the grid
 function drawGrid() {
+    const c1 = COLOR_SCHEMES[cI].c1;
+    const g1 = COLOR_SCHEMES[cI].g1;
+    const c2 = COLOR_SCHEMES[cI].c2;
+    const g2 = COLOR_SCHEMES[cI].g2;
+    const c3 = COLOR_SCHEMES[cI].c3;
+    const g3 = COLOR_SCHEMES[cI].g3;
+    const c4 = COLOR_SCHEMES[cI].c4;
+
+    colorScheme.innerHTML = COLOR_SCHEMES[cI].name;
+    colorScheme.style.color = `rgb(${c1[0]},${c1[1]},${c1[2]})`;
 //            ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "rgb(240,240,240)";
     ctx.fillRect(0,0,canvas.width, canvas.height);
@@ -175,11 +229,28 @@ function drawGrid() {
         for (let j = 0; j < w; j++) {
             const v = getCV(j, i);
             if (grid.has(v)) {
-                const w = Math.max(0, (DECAY_GENS-grid.get(v))/DECAY_GENS);
-                ctx.fillStyle = `rgb(
-                    ${220*w},
-                    ${110*w},
-                    ${110*w})`;
+                const t = grid.get(v);
+                if (t <= g1) {
+                    const w = t/g1;
+                    ctx.fillStyle = `rgb(
+                        ${c2[0]*w+c1[0]*(1-w)},
+                        ${c2[1]*w+c1[1]*(1-w)},
+                        ${c2[2]*w+c1[2]*(1-w)})`;
+                } else if (t <= g2) {
+                    const w = (t-g1)/(g2-g1);
+                    ctx.fillStyle = `rgb(
+                        ${c3[0]*w+c2[0]*(1-w)},
+                        ${c3[1]*w+c2[1]*(1-w)},
+                        ${c3[2]*w+c2[2]*(1-w)})`;
+                } else if (t <= g3) {
+                    const w = (t-g2)/(g3-g2);
+                    ctx.fillStyle = `rgb(
+                        ${c4[0]*w+c3[0]*(1-w)},
+                        ${c4[1]*w+c3[1]*(1-w)},
+                        ${c4[2]*w+c3[2]*(1-w)})`;
+                } else {
+                    ctx.fillStyle = `rgb(${c4[0]},${c4[1]},${c4[2]})`;
+                }
                 ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
             }
         }
@@ -283,6 +354,12 @@ function handleKeyPress(event) {
     if (event.key === ' ') {
         toggleAnimation();
         stopPulse();
+    } else if (event.key === "ArrowLeft") {
+        cI = (cI-1+COLOR_SCHEMES.length) % COLOR_SCHEMES.length;
+        drawGrid();
+    } else if (event.key === "ArrowRight") {
+        cI = (cI+1+COLOR_SCHEMES.length) % COLOR_SCHEMES.length;
+        drawGrid();
     }
 }
 
