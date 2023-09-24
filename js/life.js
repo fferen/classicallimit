@@ -1,11 +1,12 @@
 const GRID_W = 65536;
 const GRID_OFF = 32768;
+const DECAY_GENS = 5;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const cellSize = 15; // Size of each cell in pixels
 const prob = 0.3;
-let grid = new Set(); // The grid of cells
+let grid = new Map(); // map on cell => # gens has been on
 let running = false; // Track animation state
 let isMouseDown = false; // Track mouse button state
 let cellsToggledDuringDrag = new Set(); // Track cells toggled during a drag
@@ -94,13 +95,7 @@ function getCV(x, y) {
     return (x+GRID_OFF)*GRID_W+y+GRID_OFF;
 }
 function setC(x, y) {
-    grid.add(getCV(x, y));
-}
-function setCG(g, x, y) {
-    g.add(getCV(x, y));
-}
-function isC(x, y) {
-    return grid.has(getCV(x, y));
+    grid.set(getCV(x, y), 0);
 }
 
 function initPatternStr(s, xOff, yOff) {
@@ -176,10 +171,15 @@ function drawGrid() {
         ctx.stroke();
     }
 
-    ctx.fillStyle = "rgb(100,120,200)";
     for (let i = 0; i < h; i++) {
         for (let j = 0; j < w; j++) {
-            if (isC(j, i)) {
+            const v = getCV(j, i);
+            if (grid.has(v)) {
+                const w = Math.max(0, (DECAY_GENS-grid.get(v))/DECAY_GENS);
+                ctx.fillStyle = `rgb(
+                    ${220*w},
+                    ${110*w},
+                    ${110*w})`;
                 ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
             }
         }
@@ -195,7 +195,7 @@ function toggleCell(x, y) {
         if (grid.has(v)) {
             grid.delete(v);
         } else {
-            grid.add(v);
+            grid.set(v, 0);
         }
         cellsToggledDuringDrag.add(v);
         drawGrid();
@@ -211,8 +211,8 @@ function handleMouseMove(event) {
 
 // Function to update the grid based on the rules of the Game of Life
 function updateGrid() {
-    let nbrMap = new Map();
-    let newGrid = new Set();
+    let nbrMap = new Map(); // map packed grid position to # nbrs
+    let newGrid = new Map();
 
     function incNbr(x, y) {
         const v = getCV(x, y);
@@ -223,7 +223,7 @@ function updateGrid() {
         }
     }
 
-    for (const v of grid) {
+    for (const [v, gens] of grid) {
         const [x, y] = getCXY(v);
         incNbr(x-1, y-1);
         incNbr(x-1, y);
@@ -237,9 +237,10 @@ function updateGrid() {
 
     for (const [v, nbrs] of nbrMap) {
         const isOn = grid.has(v);
-        if ((isOn && (nbrs === 2 || nbrs === 3)) ||
-            (!isOn && (nbrs === 3))) {
-            newGrid.add(v);
+        if (isOn && (nbrs === 2 || nbrs === 3)) {
+            newGrid.set(v, grid.get(v)+1);
+        } else if (!isOn && (nbrs === 3)) {
+            newGrid.set(v, 0);
         }
     }
 
